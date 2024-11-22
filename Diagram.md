@@ -1,5 +1,8 @@
+# Control Flow of Algorithmic Agent
+
 ```mermaid
     stateDiagram-v2
+        direction LR
         [*] --> START
         START --> CHECK
         CHECK --> BLOCKER
