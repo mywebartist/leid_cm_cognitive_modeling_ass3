@@ -78,14 +78,33 @@ class MemoryAgent(ACTR):
     DM = Memory(DMBuffer)
 
     def init():
-        goal.set('start')
-        DM.add('move 1 1 C')
-        DM.add('move 2 2 B')
-        DM.add('move 3 1 B')
-        DM.add('move 4 3 C')
-        DM.add('move 5 1 A')
-        DM.add('move 6 2 C')
-        DM.add('move 7 1 C')
+        goal.set('start 4')
+        DM.add('move 1 1 1 C')
+        DM.add('move 2 1 1 B')
+        DM.add('move 2 2 2 C')
+        DM.add('move 2 3 1 C')
+        DM.add('move 3 1 1 C')
+        DM.add('move 3 2 2 B')
+        DM.add('move 3 3 1 B')
+        DM.add('move 3 4 3 C')
+        DM.add('move 3 5 1 A')
+        DM.add('move 3 6 2 C')
+        DM.add('move 3 7 1 C')
+        DM.add('move 4 1 1 B')
+        DM.add('move 4 2 2 C')
+        DM.add('move 4 3 1 C')
+        DM.add('move 4 4 3 B')
+        DM.add('move 4 5 1 A')
+        DM.add('move 4 6 2 B')
+        DM.add('move 4 7 1 B')
+        DM.add('move 4 8 4 C')
+        DM.add('move 4 9 1 C')
+        DM.add('move 4 10 2 A')
+        DM.add('move 4 11 1 A')
+        DM.add('move 4 12 3 C')
+        DM.add('move 4 13 1 B')
+        DM.add('move 4 14 2 C')
+        DM.add('move 4 15 1 C')
         DM.add('count 0 1')
         DM.add('count 1 2')
         DM.add('count 2 3')
@@ -95,21 +114,28 @@ class MemoryAgent(ACTR):
         DM.add('count 6 7')
         DM.add('count 7 8')
         DM.add('count 8 9')
+        DM.add('count 9 10')
+        DM.add('count 10 11')
+        DM.add('count 11 12')
+        DM.add('count 12 13')
+        DM.add('count 13 14')
+        DM.add('count 14 15')
 
-    def start(goal='start'):
-        goal.set('move 1 1 C')
+    def start(goal='start ?p'):
+        DM.request('move ?p 1 ? ?')
+        goal.set('set new move ?p')
 
-    def move(goal='move ?n !None?d !None?dTo'):
+    def set_new_move(goal='set new move ?p', DMBuffer='move ? ?step ?d ?dTo'):
+        goal.set('move ?p ?step ?d ?dTo')
+
+    def move(goal='move ?p ?step !None?d !None?dTo'):
         towers.move(d, dTo)
-        DM.request('count ?n ?')
-        goal.set('retrieve next')
+        DM.request('count ?step ?')
+        goal.set('retrieve next move ?p')
 
-    def retrieve_next_move(goal='retrieve next', DMBuffer='count ? ?n'):
-        DM.request('move ?n ? ?')
-        goal.set('set new goal')
-
-    def set_new_goal(goal='set new goal', DMBuffer='move ?step ?d ?dTo'):
-        goal.set('move ?step ?d ?dTo')
+    def retrieve_next_move(goal='retrieve next move ?p', DMBuffer='count ? ?step'):
+        DM.request('move ?p ?step ? ?')
+        goal.set('set new move ?p')
 
 
 class AlgorithmicAgent(ACTR):
@@ -155,11 +181,11 @@ class AlgorithmicAgent(ACTR):
         if debug:
             print(f'CHECK: {goal.chunk}    DEPTH: {depth}')
 
-    def subgoal(goal='check:True tree:None?tree', towers='m:!None?m y:?y', imaginal='?depth'):
+    def blocker(goal='check:True tree:None?tree', towers='m:!None?m y:?y', imaginal='?depth'):
         DM.request('count ?depth ?')
         goal.modify(tree='Down')
         if debug:
-            print(f'SUBGOAL: {goal.chunk}    DEPTH: {depth}')
+            print(f'BLOCKER: {goal.chunk}    DEPTH: {depth}')
 
     def down(goal='tree:Down?tree', DMBuffer='count ? ?n', imaginal='?depth'):
         imaginal.set('?n')
@@ -167,11 +193,11 @@ class AlgorithmicAgent(ACTR):
         if debug:
             print(f'DOWN: {goal.chunk}    DEPTH: {depth}')
 
-    def blocker(goal='p:?p d:?d dTo:?dTo check:True?check tree:Blocked?tree', towers='m:!None?m y:?y', imaginal='?depth'):
+    def subgoal(goal='p:?p d:?d dTo:?dTo check:True?check tree:Blocked?tree', towers='m:!None?m y:?y', imaginal='?depth'):
         DM.add('?p ?depth ?m ?y ?d ?dTo')
         goal.modify(d=m, dTo=y, check='False', tree='None')
         if debug:
-            print(f'BLOCKER: {goal.chunk}    DEPTH: {depth}\n\n\tADD DMBuffer: {p} {depth} {m} {y} {d} {dTo}\n')
+            print(f'SUBGOAL: {goal.chunk}    DEPTH: {depth}\n\n\tADD DMBuffer: {p} {depth} {m} {y} {d} {dTo}\n')
 
     def move(goal='p:?p pTo:?pTo d:!None?d dTo:!None?dTo check:True?check recall:?recall', towers='m:None?m y:!None?y', imaginal='?depth'):
         towers.move(d, dTo)
