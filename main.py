@@ -221,7 +221,7 @@ class AlgorithmicAgent(ACTR):
 
     def satisfy(goal='p:?p d:?d dTo:?dTo recall:True?recall satisfied:False?satisfied', towers='s:True?s', imaginal='?depth'):
         DM.request('count ? ?p')
-        goal.modify(satisfied='True')
+        goal.modify(satisfied=s)
         if debug:
             print(f'SATISFY: {goal.chunk}    DEPTH: {depth}')
 
