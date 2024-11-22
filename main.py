@@ -71,6 +71,47 @@ class WrapperEnv(Model):
     towers = TowerOfHanoi(4)
 
 
+class MemoryAgent(ACTR):
+
+    goal = Buffer()
+    DMBuffer = Buffer()
+    DM = Memory(DMBuffer)
+
+    def init():
+        goal.set('start')
+        DM.add('move 1 1 C')
+        DM.add('move 2 2 B')
+        DM.add('move 3 1 B')
+        DM.add('move 4 3 C')
+        DM.add('move 5 1 A')
+        DM.add('move 6 2 C')
+        DM.add('move 7 1 C')
+        DM.add('count 0 1')
+        DM.add('count 1 2')
+        DM.add('count 2 3')
+        DM.add('count 3 4')
+        DM.add('count 4 5')
+        DM.add('count 5 6')
+        DM.add('count 6 7')
+        DM.add('count 7 8')
+        DM.add('count 8 9')
+
+    def start(goal='start'):
+        goal.set('move 1 1 C')
+
+    def move(goal='move ?n !None?d !None?dTo'):
+        towers.move(d, dTo)
+        DM.request('count ?n ?')
+        goal.set('retrieve next')
+
+    def retrieve_next_move(goal='retrieve next', DMBuffer='count ? ?n'):
+        DM.request('move ?n ? ?')
+        goal.set('set new goal')
+
+    def set_new_goal(goal='set new goal', DMBuffer='move ?step ?d ?dTo'):
+        goal.set('move ?step ?d ?dTo')
+
+
 class AlgorithmicAgent(ACTR):
 
     goal = Buffer()
@@ -78,7 +119,7 @@ class AlgorithmicAgent(ACTR):
     DMBuffer = Buffer()
     DM = Memory(DMBuffer)
 
-    debug = True
+    debug = False
 
     def init():
         goal.set('p:4 pTo:C d:None dTo:None check:False recall:False tree:None satisfied:False')
@@ -87,7 +128,11 @@ class AlgorithmicAgent(ACTR):
         DM.add('count 1 2')
         DM.add('count 2 3')
         DM.add('count 3 4')
+        DM.add('count 4 5')
         DM.add('count 5 6')
+        DM.add('count 6 7')
+        DM.add('count 7 8')
+        DM.add('count 8 9')
         if debug:
             print(f'\nINIT: {goal.chunk}')
 
@@ -164,6 +209,7 @@ class AlgorithmicAgent(ACTR):
 if __name__ == "__main__":
     env = WrapperEnv()
     env.agent = AlgorithmicAgent()
+    # env.agent = MemoryAgent()
     env.agent.towers = env.towers
     env.run()
     print()
