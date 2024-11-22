@@ -43,8 +43,8 @@ class TowerOfHanoi(Model):
         print(f'    Disk {disk} was moved to peg {dest}.')
         print(f'    Peg A has disks {list(self.pegs["A"])}, peg B has disks {list(self.pegs["B"])}, peg C has disks {list(self.pegs["C"])}.')
 
-    def check(self, disk, dest):
-        disk = int(disk)
+    def check(self, p, disk, dest):
+        p, disk = int(p), int(disk)
         src = None
         for key, peg in self.pegs.items():
             if disk in peg:
@@ -57,7 +57,7 @@ class TowerOfHanoi(Model):
             self.m = src_peg[src_peg.index(disk)-1]
             return
         if dst_peg and dst_peg[0] < disk:
-            self.m = dst_peg[-1]
+            self.m = max(d for d in dst_peg if d < p)
             return
         self.m = None
 
@@ -78,7 +78,7 @@ class AlgorithmicAgent(ACTR):
     DMBuffer = Buffer()
     DM = Memory(DMBuffer)
 
-    debug = False
+    debug = True
 
     def init():
         goal.set('p:4 pTo:C d:None dTo:None check:False recall:False tree:None satisfied:False')
@@ -104,8 +104,8 @@ class AlgorithmicAgent(ACTR):
             print(f'\nFINAL: {goal.chunk}')
         self.stop()
 
-    def check(goal='d:!None?d dTo:!None?dTo check:False?check tree:None', imaginal='?depth'):
-        towers.check(d, dTo)
+    def check(goal='p:!None?p d:!None?d dTo:!None?dTo check:False?check tree:None', imaginal='?depth'):
+        towers.check(p, d, dTo)
         goal.modify(check='True')
         if debug:
             print(f'CHECK: {goal.chunk}    DEPTH: {depth}')
